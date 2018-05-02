@@ -1,26 +1,25 @@
 FROM node
 
-RUN cd /home/node
-
-# add dependency spec
-COPY package-lock.json .
+# copy
+COPY package-lock.json /home/node
+COPY package.json /home/node
+COPY src /home/node/src
+COPY public /home/node/public
 
 # install dependencies
-RUN npm install
-
-# add sources
-COPY src .
-COPY public .
+RUN npm install --prefix /home/node
 
 # test and build static site
-RUN npm test
-RUN npm run build
+ENV CI=true
+RUN npm test --prefix /home/node
+RUN npm run build --prefix /home/node
 
 # install nginx
 RUN apt update
 RUN apt install -y nginx
 
 # copy nginx conf
-RUN cp nginx.conf /etc/nginx/conf.d/
+COPY nginx.conf .
+RUN mv nginx.conf /etc/nginx/conf.d/
 
 ENTRYPOINT ["nginx", "-g", "daemon off;"]
