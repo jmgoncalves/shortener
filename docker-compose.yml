@@ -1,0 +1,22 @@
+version: "3"
+services:
+  redis:
+    image: redis
+    hostname: redis
+  backend:
+    build: ./backend/
+    depends_on:
+      - redis
+    hostname: backend
+    environment:
+      REDIS_HOST: redis
+  frontend:
+    build: ./frontend/
+    hostname: frontend
+  proxy:
+    build: ./proxy/
+    depends_on:
+      - backend
+      - frontend
+    ports:
+      - 8080:8080
